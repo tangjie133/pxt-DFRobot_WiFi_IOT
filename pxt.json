@@ -1,5 +1,6 @@
 {
     "name": "pxt-WIFI_IOT",
+    "version": "0.0.1",
     "description": "",
     "dependencies": {
         "core": "*",

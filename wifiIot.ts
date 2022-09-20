@@ -113,9 +113,9 @@ namespace wifiIot {
     let Reconnection = 0;
 
     export enum SERVERS {
-        //% blockId=SERVERS_China block="EasyIOT_CN"
+        //% blockId=wifiIot_SERVERS_China block="EasyIOT_CN"
         China,
-        //% blockId=SERVERS_English block="EasyIOT_EN"
+        //% blockId=wifiIot_SERVERS_English block="EasyIOT_EN"
         English,
         //% block="SIOT"
         SIOT

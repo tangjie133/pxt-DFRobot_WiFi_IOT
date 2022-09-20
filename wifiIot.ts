@@ -18,7 +18,7 @@ const OBLOQ_MQTT_EASY_IOT_SERVER_TK = "api.thingspeak.com"
 
 
 //% weight=10 color=#e7660b icon="\uf185" block="WIFI IOT"
-//% groups="['IOT']"
+//% blockId=wifiIot
 namespace wifiIot {
     let data: number[] = [];
     let _brightness = 255
@@ -216,7 +216,6 @@ namespace wifiIot {
     */
 
     //% weight=100
-    //% group="IOT"
     //% blockId=WIFI_IOT_microIoT_WIFI block="Wi-Fi configure name: %SSID| password：%PASSWORD start connection"
     export function microIoT_WIFI(SSID: string, PASSWORD: string): void {
         //init();
@@ -252,7 +251,6 @@ namespace wifiIot {
     */
 
     //% weight=90
-    //% group="IOT"
     //% blockExternalInputs=1
     //% blockId=WIFI_IOT_microIoT_MQTT block="MQTT configure|IOT_ID(user):%IOT_ID|IOT_PWD(password):%IOT_PWD|Topic(default topic_0):%IOT_TOPIC|server:%SERVERS||IP:%IP"
     export function microIoT_MQTT(
@@ -289,7 +287,6 @@ namespace wifiIot {
      */
 
     //% weight=70
-    //% group="IOT"
     //% blockId=WIFI_IOT_microIoT_add_topic
     //% block="subscribe additional %top |: %IOT_TOPIC"
     //% top.fieldEditor="gridpicker" top.fieldOptions.columns=2
@@ -329,7 +326,6 @@ namespace wifiIot {
      */
 
     //% weight=80
-    //% group="IOT"
     //% blockId=WIFI_IOT_microIoT_SendMessage block="send message %Mess| to |%TOPIC"
     export function microIoT_SendMessage(Mess: string, Topic: TOPIC): void {
         let topic = 0
@@ -385,7 +381,6 @@ namespace wifiIot {
      */
 
     //% weight=60
-    //% group="IOT"
     //% blockId=WIFI_IOT_microIoT_MQTT_Event block="on received $top"
     //% draggableParameters
     //% top.fieldEditor="gridpicker" top.fieldOptions.columns=2
@@ -405,7 +400,6 @@ namespace wifiIot {
     */
 
     //% weight=50
-    //% group="IOT"
     //% receive.fieldEditor="gridpicker" receive.fieldOptions.columns=3
     //% send.fieldEditor="gridpicker" send.fieldOptions.columns=3
     //% blockId=WIFI_IOT_microIoT_http_IFTTT
@@ -443,7 +437,6 @@ namespace wifiIot {
      * @param KEY to KEY ,eg: "yourKey"
      */
     //% weight=31
-    //% group="IOT"
     //% receive.fieldEditor="gridpicker" receive.fieldOptions.columns=3
     //% send.fieldEditor="gridpicker" send.fieldOptions.columns=3
     //% blockId=WIFI_IOT_microIoT_ThingSpeak_configura
@@ -458,7 +451,6 @@ namespace wifiIot {
     */
 
     //% weight=30
-    //% group="IOT"
     //% blockId=WIFI_IOT_microIoT_http_TK_GET
     //% expandableArgumentMode="enabled"
     //% inlineInputMode=inline
@@ -495,7 +487,6 @@ namespace wifiIot {
     */
 
     //% weight=40
-    //% group="IOT"
     //% blockId=WIFI_IOT_microIoT_http_post
     //% block="IFTTT send value1:%value1|value2:%value2|value3:%value3"
     //% inlineInputMode=inline

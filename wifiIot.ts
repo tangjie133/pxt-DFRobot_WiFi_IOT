@@ -199,7 +199,7 @@ namespace wifiIot {
                 break;
             }
             basic.pause(50);
-            if ((currentTime - startTime) > 150000)
+            if ((currentTime - startTime) > 20000)
                 break;
         }
         return ret;
@@ -277,9 +277,9 @@ namespace wifiIot {
         Topic_0 = IOT_TOPIC
         microIoT_ParaRunCommand(SUB_TOPIC0, IOT_TOPIC);
         if (microIoT_CheckStatus("SubTopicOK") == SUCCESS){
-            serial.writeString("sub topic ok\r\n");
+            serial.writeString("sub " + Topic_0 +" ok\r\n");
         }else{
-            serial.writeString("sub topic timeout\r\n");
+            serial.writeString("sub " + Topic_0 + " timeout\r\n");
         }
     }
 
@@ -315,10 +315,10 @@ namespace wifiIot {
                 break;
 
         }
-        if(microIoT_CheckStatus("SubTopicOK") == SUCCESS){
-            serial.writeString("sub topic ok\r\n");
-        }else {
-            serial.writeString("sub topic timeout\r\n");
+        if (microIoT_CheckStatus("SubTopicOK") == SUCCESS) {
+            serial.writeString("sub " + IOT_TOPIC + " ok\r\n");
+        } else {
+            serial.writeString("sub " + IOT_TOPIC + " timeout\r\n");
         }
 
     }

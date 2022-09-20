@@ -10,6 +10,8 @@
     "files": [
         "main.blocks",
         "main.ts",
+        "_locales/zh-cn/EnvironmentScience-strings.json",
+        "_locales/zh-tw/EnvironmentScience-strings.json",
         "README.md",
         "wifiIot.ts"
     ],

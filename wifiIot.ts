@@ -109,7 +109,8 @@ namespace wifiIot {
     let G_city = 0;
     let wifiConnected = 0;
     let mqttState = 0;
-    
+    let SUCCESS = 1;
+    let Reconnection = 0;
 
     export enum SERVERS {
         //% blockId=SERVERS_China block="EasyIOT_CN"
@@ -231,7 +232,7 @@ namespace wifiIot {
         microIoT_setPara(SETWIFI_NAME, SSID)
         microIoT_setPara(SETWIFI_PASSWORLD, PASSWORD)
         microIoT_runCommand(CONNECT_WIFI)
-        if (microIoT_CheckStatus("WiFiConnected") == 1)
+        if (microIoT_CheckStatus("WiFiConnected") == SUCCESS)
         {
             serial.writeString("wifi conneced ok\r\n");
         }else{
@@ -268,13 +269,18 @@ namespace wifiIot {
         microIoT_setPara(SETMQTT_ID, IOT_ID)
         microIoT_setPara(SETMQTT_PASSWORLD, IOT_PWD)
         microIoT_runCommand(CONNECT_MQTT);
-        microIoT_CheckStatus("MQTTConnected");
-        serial.writeString("mqtt connected\r\n");
-        basic.pause(100);
+        if (microIoT_CheckStatus("MQTTConnected") == SUCCESS){
+            serial.writeString("mqtt connected\r\n");
+        }else{
+            serial.writeString("mqtt connected timeout\r\n");
+        }
         Topic_0 = IOT_TOPIC
         microIoT_ParaRunCommand(SUB_TOPIC0, IOT_TOPIC);
-        microIoT_CheckStatus("SubTopicOK");
-        serial.writeString("sub topic ok\r\n");
+        if (microIoT_CheckStatus("SubTopicOK") == SUCCESS){
+            serial.writeString("sub topic ok\r\n");
+        }else{
+            serial.writeString("sub topic timeout\r\n");
+        }
     }
 
     /**
@@ -289,7 +295,31 @@ namespace wifiIot {
     //% top.fieldEditor="gridpicker" top.fieldOptions.columns=2
     export function microIoT_add_topic(top: TOPIC, IOT_TOPIC: string): void {
         microIoT_ParaRunCommand((top + 0x06), IOT_TOPIC);
-        microIoT_CheckStatus("SubTopicOK");
+        switch (top) {
+            case TOPIC.topic_0:
+                Topic_0 = IOT_TOPIC;
+                break;
+            case TOPIC.topic_1:
+                Topic_1 = IOT_TOPIC;
+                break;
+            case TOPIC.topic_2:
+                Topic_2 = IOT_TOPIC;
+                break;
+            case TOPIC.topic_3:
+                Topic_3 = IOT_TOPIC;
+                break;
+            case TOPIC.topic_4:
+                Topic_4 = IOT_TOPIC;
+                break;
+            default:
+                break;
+
+        }
+        if(microIoT_CheckStatus("SubTopicOK") == SUCCESS){
+            serial.writeString("sub topic ok\r\n");
+        }else {
+            serial.writeString("sub topic timeout\r\n");
+        }
 
     }
 
@@ -356,7 +386,8 @@ namespace wifiIot {
 
     //% weight=60
     //% group="IOT"
-    //% blockId=WIFI_IOT_microIoT_MQTT_Event block="on received %top"
+    //% blockId=WIFI_IOT_microIoT_MQTT_Event block="on received $top"
+    //% draggableParameters
     //% top.fieldEditor="gridpicker" top.fieldOptions.columns=2
     export function microIoT_MQTT_Event(top: TOPIC, cb: (message: string) => void) {
         microIoT_callback(top, () => {
@@ -431,7 +462,7 @@ namespace wifiIot {
     //% blockId=WIFI_IOT_microIoT_http_TK_GET
     //% expandableArgumentMode="enabled"
     //% inlineInputMode=inline
-    //% block="ThingSpeak send value1: %field1||value2: %field2|value3: %field3|value4: %field4|value5: %field5|value6: %field6|value7: %field7 value8: %field8" 
+    //% block="ThingSpeak send value1: %field1||value2: %field2|value3: %field3|value4: %field4|value5: %field5|value6: %field6|value7: %field7 value8: %field8"
     export function microIoT_http_TK_GET(field1: string, field2?: string, field3?: string, field4?: string, field5?: string, field6?: string, field7?: string, field8?: string): void {
         microIoT_setPara(SETHTTP_IP, OBLOQ_MQTT_EASY_IOT_SERVER_TK)
         let tempStr = ""
@@ -521,6 +552,7 @@ namespace wifiIot {
                     }
                 } else if (tempStatus == WIFI_NEWCONNECTED) {//当wifi卡断网后实现WiFi重连
                     microIoT_runCommand(WIFI_CONNECTED);
+                    serial.writeLine("wifi request reconnection")
                 } break;
             case READ_MQTTSTATUS:
                 if (tempStatus == MQTT_CONNECTED) {
@@ -545,10 +577,11 @@ namespace wifiIot {
                 microIoT_GetData(tempStatus)
                 microIoT_IP = RECDATA
                 if (mqttState == 1) {//之前连接过mqtt断开连接后重连实现mqtt并订阅topic
+                    serial.writeString("wifi reconnection ok\r\n");
                     mqttState = 0;
+                    Reconnection = 1;
                     microIoT_runCommand(DISCONNECT_MQTT);
-                    basic.pause(200)
-                    microIoT_runCommand(CONNECT_MQTT);
+                    basic.pause(100);
                 }
                 break;
             case SUB_TOPIC0:
@@ -603,6 +636,60 @@ namespace wifiIot {
     basic.forever(function () {
         microIoT_InquireStatus();
     })
+    basic.forever(function () {
+        MQTTReconnection();
+    })
+    function MQTTReconnection():void{
+        if (Reconnection == 1){
+            Reconnection = 0;
+            microIoT_runCommand(CONNECT_MQTT);
+            if (microIoT_CheckStatus("MQTTConnected") == SUCCESS) {
+                serial.writeString("mqtt reconnection\r\n");
+            } else {
+                serial.writeString("mqtt reconnection timeout\r\n");
+            }
+            if (Topic_0.length != 0) {
+                microIoT_ParaRunCommand(SUB_TOPIC0, Topic_0);
+                if (microIoT_CheckStatus("SubTopicOK") == SUCCESS) {
+                    serial.writeString("sub topic_0 ok\r\n");
+                } else {
+                    serial.writeString("sub topic_0 timeout\r\n");
+                }
+            } 
+            if (Topic_1.length != 0) {
+                microIoT_ParaRunCommand(SUB_TOPIC1, Topic_1);
+                if (microIoT_CheckStatus("SubTopicOK") == SUCCESS) {
+                    serial.writeString("sub topic_1 ok\r\n");
+                } else {
+                    serial.writeString("sub topic_1 timeout\r\n");
+                }
+            }
+            if (Topic_2.length != 0) {
+                microIoT_ParaRunCommand(SUB_TOPIC2, Topic_2);
+                if (microIoT_CheckStatus("SubTopicOK") == SUCCESS) {
+                    serial.writeString("sub topic_2 ok\r\n");
+                } else {
+                    serial.writeString("sub topic_2 timeout\r\n");
+                }
+            }
+            if (Topic_3.length != 0) {
+                microIoT_ParaRunCommand(SUB_TOPIC3, Topic_3);
+                if (microIoT_CheckStatus("SubTopicOK") == SUCCESS) {
+                    serial.writeString("sub topic_3 ok\r\n");
+                } else {
+                    serial.writeString("sub topic_3 timeout\r\n");
+                }
+            }
+            if (Topic_4.length != 0) {
+                microIoT_ParaRunCommand(SUB_TOPIC4, Topic_4);
+                if (microIoT_CheckStatus("SubTopicOK") == SUCCESS) {
+                    serial.writeString("sub topic_4 ok\r\n");
+                } else {
+                    serial.writeString("sub topic_4 timeout\r\n");
+                }
+            }
+        }
+    }
 
     function microIoT_get_version(): string {//获取WiFi卡版本号
         let buf = pins.createBuffer(3);

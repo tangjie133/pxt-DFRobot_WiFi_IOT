@@ -199,7 +199,7 @@ namespace wifiIot {
                 break;
             }
             basic.pause(50);
-            if ((currentTime - startTime) > 200000)
+            if ((currentTime - startTime) > 20000)
                 break;
         }
         return ret;
